@@ -5,16 +5,19 @@ var pipe3Img;
 var gameOver,gameoverImg
 var restart,restartImg
 var jumpSound
-var startButton
+var startButton,startbuttonImg
 var gameState="start";
+var score=0;
 function preload(){
   flappybirdImg = loadImage("images/flappyBird.png");
   backgroundImg = loadImage("images/background.jfif");
-  pipe2Img=loadImage("images/pipe2.png")
-  pipe3Img=loadImage("images/pipe2inverted.png")
-  gameoverImg=loadImage("images/gameOver.png")
-  restartImg=loadImage("images/restart.png")
-  jumpSound=loadSound("jump.mp3")
+  pipe2Img=loadImage("images/pipe2.png");
+  pipe3Img=loadImage("images/pipe2inverted.png");
+  gameoverImg=loadImage("images/gameOver.png");
+  restartImg=loadImage("images/restart.png");
+  jumpSound=loadSound("jump.mp3");
+  startbuttonImg=loadImage("images/startbutton.png");
+
 
 }
 function setup(){
@@ -33,7 +36,9 @@ function setup(){
   gameOver.addImage(gameoverImg);
   restart = createSprite(500,400,10,10)
   restart.addImage(restartImg) 
-
+  startButton=createSprite(500,350,10,10)
+  startButton.addImage(startbuttonImg);
+  startButton.scale=0.5
 }
 function draw(){
   background(255);
@@ -42,9 +47,11 @@ function draw(){
     flappybird.velocityY=0;
     gameOver.visible=false;
     restart.visible=false;
-    textSize(30)
-    text("Flappy Bird",500,350)
+    startButton.visible=true;
 
+  }
+  if(mousePressedOver(startButton)){
+    gameState="play";
   }
 
   if(gameState==="play"){
@@ -54,7 +61,7 @@ function draw(){
       
     }
     if(ground.x<450){
-      ground.x= 500
+      ground.x= 500 
       
     }
     flappybird.velocityY=flappybird.velocityY+0.8
@@ -62,25 +69,33 @@ function draw(){
     gameOver.visible=false;
     restart.visible=false;
 
+    if(frameCount % 550 ===0){
+      score=score+1
+    }
+    
     if(flappybird.isTouching(pipeGroup1) || flappybird.isTouching(pipeGroup2)){
       gameState="end";
     }
+    startButton.visible=false
   }else if(gameState=== "end"){
       flappybird.velocityY=0;
       ground.velocityX=0;
       
       gameOver.visible=true;
       restart.visible=true;
-  
+      flappybird.velocityY=0;
       pipeGroup1.setLifetimeEach(-1);
       pipeGroup2.setLifetimeEach(-1);
   
       pipeGroup1.setVelocityXEach(0)
       pipeGroup2.setVelocityXEach(0)
+      pipeGroup1.destroyEach();
+      pipeGroup2.destroyEach();
 
       if(mousePressedOver(restart)){
         reset();
       }
+      
   }
   
   
@@ -88,6 +103,11 @@ function draw(){
     
   
   drawSprites();
+  fill("red")
+  textSize(30)
+  text("Flappy Bird",400,50);
+  fill("grey")
+  text("Score : "+ score,800,50)
 
 }
 function spawnPipe(){
@@ -127,9 +147,10 @@ function reset(){
   pipeGroup1.destroyEach();
   pipeGroup2.destroyEach();
   
- 
+  gameState="start"
   flappybird.x=300;
   flappybird.y=0;
+  flappybird.velocityY=0;
   flappybird.addImage(flappybirdImg);
-  gameState="play";
+  
 }
